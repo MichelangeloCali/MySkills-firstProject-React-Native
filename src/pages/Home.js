@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {
   View,
@@ -6,21 +6,39 @@ import {
   StyleSheet,
   TextInput,
   Platform,
-  TouchableOpacity,
+  FlatList,
 } from 'react-native';
+
+import {Button} from '../components/Button/Button';
+import {SkillCard} from '../components/SkillCard/SkillCard';
 
 export const Home = () => {
   const [newSkill, setNewSkill] = useState('');
   const [mySkills, setMySkills] = useState([]);
+  const [greeting, setGreeting] = useState('');
 
   const handleAddNewSkill = () => {
     setMySkills([...mySkills, newSkill]);
   };
 
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+
+    if (currentHour < 12) {
+      setGreeting('Good morning');
+    } else if (currentHour >= 12 && currentHour < 18) {
+      setGreeting('Good afternoon');
+    } else {
+      setGreeting('Good night');
+    }
+  }, []);
+
   return (
     <>
       <View style={styles.container}>
         <Text style={styles.title}>Welcome, Michelangelo</Text>
+
+        <Text style={styles.greetings}>{greeting}</Text>
 
         <TextInput
           style={styles.input}
@@ -29,20 +47,15 @@ export const Home = () => {
           onChangeText={setNewSkill}
         />
 
-        <TouchableOpacity
-          style={styles.button}
-          activeOpacity={0.7}
-          onPress={handleAddNewSkill}>
-          <Text style={styles.buttonText}>Add</Text>
-        </TouchableOpacity>
+        <Button onPress={handleAddNewSkill} />
 
         <Text style={[styles.title, {marginVertical: 50}]}>My Skills</Text>
 
-        {mySkills.map(skill => (
-          <TouchableOpacity style={styles.buttonSkill} key={skill}>
-            <Text style={styles.textSkill}>{skill}</Text>
-          </TouchableOpacity>
-        ))}
+        <FlatList
+          data={mySkills}
+          keyExtractor={item => item}
+          renderItem={({item}) => <SkillCard skill={item} />}
+        />
       </View>
     </>
   );
@@ -68,28 +81,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     borderRadius: 7,
   },
-  button: {
-    backgroundColor: '#a370f7',
-    padding: 15,
-    borderRadius: 7,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonText: {
+  greetings: {
     color: '#fff',
-    fontSize: 17,
-    fontWeight: 'bold',
-  },
-  buttonSkill: {
-    backgroundColor: '#1f1e25',
-    padding: 15,
-    borderRadius: 7,
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  textSkill: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: 'bold',
   },
 });
